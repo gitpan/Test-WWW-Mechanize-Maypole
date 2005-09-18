@@ -15,7 +15,7 @@ use base qw/ Test::WWW::Mechanize Class::Data::Inheritable /;
 
 __PACKAGE__->mk_classdata( '_the_app' );
 
-our $VERSION = '0.2';
+our $VERSION = '0.21';
 
 sub import 
 {

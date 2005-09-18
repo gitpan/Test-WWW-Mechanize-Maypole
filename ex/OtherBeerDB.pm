@@ -54,6 +54,7 @@ __PACKAGE__->config->rows_per_page(10);
 
 # Handpumps should not show up.
 __PACKAGE__->config->display_tables([qw[beer brewery pub style]]);
+
 OtherBeerDB::Brewery->untaint_columns( printable => [qw/name notes url/] );
 OtherBeerDB::Style->untaint_columns( printable => [qw/name notes/] );
 OtherBeerDB::Beer->untaint_columns(

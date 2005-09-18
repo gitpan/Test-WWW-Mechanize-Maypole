@@ -16,3 +16,4 @@ t/templates/custom/classdata
 t/templates/custom/frontpage
 t/templates/custom/list
 t/templates/custom/view
+Makefile.PL

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Test-WWW-Mechanize-Maypole
-version: 0.2
+version: 0.21
 author:
   - David Baird <cpan@riverside-cms.co.uk>
 abstract: Test::WWW::Mechanize for Maypole
@@ -17,5 +17,5 @@ requires:
 provides:
   Test::WWW::Mechanize::Maypole:
     file: lib/Test/WWW/Mechanize/Maypole.pm
-    version: 0.2
+    version: 0.21
 generated_by: Module::Build version 0.2609
