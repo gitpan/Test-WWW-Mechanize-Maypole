@@ -15,11 +15,20 @@ use base qw/ Test::WWW::Mechanize Class::Data::Inheritable /;
 
 __PACKAGE__->mk_classdata( '_the_app' );
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 sub import 
 {
-    my ( $class, $app ) = @_;
+    my ( $class, $app, @db_args ) = @_;
+    
+    if ( @db_args )
+    {
+        my $args = join ':', @db_args;
+        
+        eval "package $app;
+        sub setup { shift->NEXT::DISTINCT::setup( '$args' ) }";    # qw(@db_args) fails
+        die $@ if $@;
+    }    
     
     $class->_the_app( $app );
     
@@ -39,6 +48,11 @@ Test::WWW::Mechanize::Maypole - Test::WWW::Mechanize for Maypole
 
     use Test::WWW::Mechanize::Maypole 'BeerDB';
     
+    # or load a test database instead of the one configured in BeerDB.pm:
+    #
+    # use Test::WWW::Mechanize::Maypole 'BeerDB', 'dbi:SQLite:test-beerdb.db';
+    # use Test::WWW::Mechanize::Maypole 'BeerDB', 'dbi:mysql:beer_d_b', 'dhoworth', 'password';
+    
     $ENV{MAYPOLE_TEMPLATES} = 'path/to/templates';
     
     my $mech = Test::WWW::Mechanize::Maypole->new;
@@ -55,7 +69,7 @@ Test::WWW::Mechanize::Maypole - Test::WWW::Mechanize for Maypole
     #
     # logging in and storing cookies:
     #
-    $mech->get_ok("http://localhost/beerdb/customer");
+    $mech->get_ok("http://localhost/beerdb/customer/buybeer");
     $mech->content_contains( 'Login to BeerDB', 'got login page' );
 
     # specify which form we're interested in
@@ -67,7 +81,7 @@ Test::WWW::Mechanize::Maypole - Test::WWW::Mechanize for Maypole
     
     # get a HTTP::Response back
     my $response = $mech->click_button( name => 'submit' );
-    like( $response->content, qr/Shop for beer/ );
+    like( $response->content, qr/Shop for beer/, 'got customer/buybeer page'  );
     
     # check our cookies give access to other pages
     $mech->get_ok( "http://localhost/beerdb/customer/edit" );
@@ -101,8 +115,14 @@ functions for common web testing scenarios. For example:
 
 This module supports cookies automatically.
 
-To use this module you must pass it the name of the application. See
-the SYNOPSIS above. 
+=head1 LOADING
+
+To use this module you must pass it the name of the application. 
+
+Additionally, you can pass an alternate set of database connection parameters, and 
+these will override the settings configured in your application. Useful for connecting 
+to a test database without having to alter your production code. This won't work if 
+your application calls C<setup()> inside a C<BEGIN> block. 
 
 =head1 CONSTRUCTOR
 
@@ -319,6 +339,46 @@ sub get_template_root { $ENV{MAYPOLE_TEMPLATES} || "." }
 1;
 
 __END__
+
+=head1 COOKBOOK
+
+Just some random notes, feel free to send me any favourite usages and I'll include 
+them here. 
+
+    sub new_mech 
+    { 
+        my ( $url ) = @_;
+        my $mech = Test::WWW::Mechanize::Maypole->new; 
+        $mech->get_ok( $url, "got something for $url" ) if $url;
+        return $mech;
+    }
+    
+    sub new_logged_in_mech
+    {
+        my ( $protected_url ) = @_;
+    
+        my $mech = new_mech;
+        
+        # request something that will get redirected to the login page
+        $mech->get("http://localhost/index.html"); 
+    
+        # specify which form we're interested in
+        $mech->form_number(1); 
+        
+        my $user = 'testuser';
+        my $pass = 'testpass';
+        
+        # fill in credentials
+        $mech->field( username => $user );
+        $mech->field( password => $pass );
+        
+        $mech->click;
+        
+        $mech->get_ok( $protected_url, "got something for $url" ) if $protected_url;
+        
+        return $mech;
+    }
+    
 
 =head1 AUTHOR
 

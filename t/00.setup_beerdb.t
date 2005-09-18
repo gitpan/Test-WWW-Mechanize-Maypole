@@ -9,8 +9,14 @@ ok(1); # need at least 1 test to keep everything happy
 # -----------------------------------------------------------------------------
 # stolen from Maypole Makefile.PL
 
-if ( !-e "t/beerdb.db" ) {
+my $sql = join( '', (<DATA>) );
+
+foreach my $beerdb ( qw/ beerdb.db other_beerdb.db / )
+{    
     diag "Making SQLite DB\n";
+    
+    unlink "t/$beerdb";
+    
     my $driver = 'SQLite';
     eval { require DBD::SQLite } or do {
         print "Error loading DBD::SQLite, trying DBD::SQLite2\n";
@@ -18,17 +24,30 @@ if ( !-e "t/beerdb.db" ) {
             : die "DBD::SQLite2 is not installed";
     };
     require DBI;
-    my $dbh = DBI->connect("dbi:$driver:dbname=t/beerdb.db");
-    my $sql = join( '', (<DATA>) );
+    my $dbh = DBI->connect("dbi:$driver:dbname=t/$beerdb");
+    #my $sql = join( '', (<DATA>) );
 
     for my $statement ( split /;/, $sql ) {
         $statement =~ s/\#.*$//mg;           # strip # comments
         $statement =~ s/auto_increment//g;
         next unless $statement =~ /\S/;
+        #warn $statement;
         eval { $dbh->do($statement) };
         die "$@: $statement" if $@;
     }
+
+    if ( $beerdb eq 'other_beerdb.db' )
+    {
+        warn "Inserting worst into $beerdb";
+        my $statement = 'INSERT INTO beer (id, brewery, name, abv) ' .
+            'VALUES (2, 12, "Organic Worst Bitter", "4.1")';
+        #warn $statement;
+        eval { $dbh->do($statement) };
+        die "$@: $statement" if $@;
+    }
+    
 }
+
 
 __DATA__
 

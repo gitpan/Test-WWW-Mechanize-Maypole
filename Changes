@@ -1,5 +1,9 @@
 Revision history for Test-WWW-Mechanize-Maypole
 
+0.2    Fri 16 Sept, 2005 16:35
+        - can supply alternate database connection parameters to use(), 
+            to access a test database for testing (Dave Howorth)
+
 0.1    Wed 14 Sept, 2005 00:50
         First version, released on an unsuspecting world.
 
