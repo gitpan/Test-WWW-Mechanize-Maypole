@@ -6,6 +6,7 @@ use HTTP::Status();
 use HTTP::Headers::Util;
 use URI;
 use UNIVERSAL::require;
+use NEXT;
 
 use Test::WWW::Mechanize;
 use Class::Data::Inheritable;
@@ -14,7 +15,7 @@ use base qw/ Test::WWW::Mechanize Class::Data::Inheritable /;
 
 __PACKAGE__->mk_classdata( '_the_app' );
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 sub import 
 {

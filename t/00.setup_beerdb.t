@@ -38,7 +38,6 @@ foreach my $beerdb ( qw/ beerdb.db other_beerdb.db / )
 
     if ( $beerdb eq 'other_beerdb.db' )
     {
-        warn "Inserting worst into $beerdb";
         my $statement = 'INSERT INTO beer (id, brewery, name, abv) ' .
             'VALUES (2, 12, "Organic Worst Bitter", "4.1")';
         #warn $statement;

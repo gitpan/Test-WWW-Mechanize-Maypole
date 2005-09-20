@@ -1,5 +1,8 @@
 Revision history for Test-WWW-Mechanize-Maypole
 
+0.23   Tues 20 Sept, 2005 23:00
+        - use NEXT
+
 0.22   Tues 20 Sept, 2005 09:20
         - clarified constructor docs (Andy Lester)
 
