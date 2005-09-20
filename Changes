@@ -1,5 +1,8 @@
 Revision history for Test-WWW-Mechanize-Maypole
 
+0.22   Tues 20 Sept, 2005 09:20
+        - clarified constructor docs (Andy Lester)
+
 0.21   Sun 18 Sept, 2005 15:00
         - a Makefile.PL would be nice (spotted by Dave Howorth)
 

@@ -1,7 +1,6 @@
 package Test::WWW::Mechanize::Maypole;
 use strict;
 use warnings;
-#use Data::Dumper;
 
 use HTTP::Status();
 use HTTP::Headers::Util;
@@ -15,7 +14,7 @@ use base qw/ Test::WWW::Mechanize Class::Data::Inheritable /;
 
 __PACKAGE__->mk_classdata( '_the_app' );
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 sub import 
 {
@@ -128,9 +127,10 @@ your application calls C<setup()> inside a C<BEGIN> block.
 
 =head2 new
 
-Behaves like, and calls, L<WWW::Mechanize>'s C<new> method.  Any parameters
-passed in get passed to WWW::Mechanize's constructor. Note that we
-need to pass the name of the Maypole application to the "use":
+Inherited from L<Test::WWW::Mechanize>, which passes any parameters through to 
+L<WWW::Mechanize::new()>. 
+
+Note that the name of the Maypole application should be passed to the C<use> statement:
 
   use Test::WWW::Mechanize::Maypole 'BeerDB';
   my $mech = Test::WWW::Mechanize::Maypole->new;
@@ -160,7 +160,7 @@ sub _make_request
     # $response is taken by send_output
     local @ARGV = ( $request, $response );
     
-    # handler() calls send_output with no args, so we provide $response via a closure.
+    # handler() calls send_output with no args, so we provide $response via @ARGV
     my $status = $self->_the_app->handler;
     
     # Translate Maypole codes to HTTP::Status codes. Maypole only has 2 codes, OK (0) 
@@ -180,16 +180,12 @@ sub _make_request
 
     # $response has now been populated during the handler() call
     $response->code( $status );
-    #my $msg = HTTP::Status::status_message( $status );
-    #warn "msg for code '$status': '$msg'";
     $response->message( HTTP::Status::status_message( $status ) );
     
     $response->header( 'Content-Base', $request->uri );
     $response->request( $request );
     
     $self->cookie_jar->extract_cookies($response) if $self->cookie_jar;
-    
-    #warn "FINAL RESPONSE: ".Dumper( $response );
     
     return $response;
 }
@@ -318,7 +314,7 @@ sub parse_args
         {
             for ( $parameters{$field} ) 
             {
-                $_ = [$_] unless ref($_) eq "ARRAY";
+                $_ = [$_] unless ref($_) eq 'ARRAY';
                 push( @$_, $value );
             }
         }
@@ -329,11 +325,11 @@ sub parse_args
     }
     
     # back to Maypole...    
-    $self->{params} = \%parameters;
-    $self->{query}  = \%parameters;
+    $self->params( \%parameters );
+    $self->query(  \%parameters );
 }
 
-sub get_template_root { $ENV{MAYPOLE_TEMPLATES} || "." }
+sub get_template_root { $ENV{MAYPOLE_TEMPLATES} || '.' }
 
 
 1;
